@@ -1,10 +1,13 @@
 from PIL import Image
+from io import open
 import sys
 
-#image_name = sys.argv[1]    #get script's paramets 
-#script_name = sys.argv[2]
-image_name = 'swiss.png' #TODO: delete
-script_name = 'test.sh'
+if sys.argv[1:]:
+    image_name = sys.argv[1]    #get script's paramets
+else: 
+    image_name = 'swiss.png'
+
+script_name = 'test'
         
         
 class pixel2ANSI:
@@ -23,9 +26,9 @@ class pixel2ANSI:
         self.width = size[0]
         self.height = size[1]
         print((
-            "#Image object created.\n\t-Size of picture is: "
-            +str(self.width)
-            +"x"+str(self.height)+"px"
+            "#Image object created.\n\t-Size of picture is: " +
+            str(self.width) +
+            "x"+str(self.height)+"px"
             ))
 
     def create_list(self, obj):
@@ -33,12 +36,14 @@ class pixel2ANSI:
             list_len = self.height//2 + 1
         else:
             list_len = self.height//2
-        self.image_list = [[[0] * 2 for e in range(self.width)] for i in range(list_len)]
+        self.image_list = (
+            [[[0] * 2 for e in range(self.width)] for i in range(list_len)]
+            )
         print((
-            "#Array created.\n\t-Width: "
-            +str(len(self.image_list[0]))
-            +"\n\t-Height:"
-            +str(len(self.image_list))
+            "#Array created.\n\t-Width: " +
+            str(len(self.image_list[0])) +
+            "\n\t-Height:" +
+            str(len(self.image_list))
             ))
 
     def fill_list(self):
@@ -61,27 +66,23 @@ class pixel2ANSI:
                 l_height += 1
         print("#Array filled.")
 
+####################
+
 lol = pixel2ANSI(image_name)
 
 esc="\033"
 rst = esc+"[0;00m"
 
-fgr="[38;5;" #for foreground color
-bgr="[48;5;" #for background color
-
-def bg_d(color_f):
-    def wraper():
+def add_escapes(color_f, bf):
+    fgr="[38;5;" #for foreground color
+    bgr="[48;5;" #for background color
+    
+    if bf == 0:
         color = esc+bgr+str(color_f)+"m"
-        return(color)
-    return wraper()
-
-def fg_d(color_f):
-    def wraper():
+    else:
         color = esc+fgr+str(color_f)+"m"
-        return(color)
-    return wraper()
+    return(color)
 
-#@color_decorator
 def trans_col(rgb):
     colors = [
         [(0,0,0), 0],       #Black
@@ -103,8 +104,8 @@ def trans_col(rgb):
     ]
     if rgb == 0:
         code = " "
+
     for color in colors:
-        #return str(color[1])print(str(rgb)+" "+str(color[0]))
         if color[0]==rgb:
             code = color[1]
             break
@@ -113,18 +114,20 @@ def trans_col(rgb):
             
     return str(code)
 
-script = open(script_name, "w", encoding='utf-8')
+script = open(script_name, "w", encoding='utf-8', newline='')
 
 for row in lol.image_list:
     row_r = ""
     for symb in row:
         if symb[0]==symb[1]:
-            #print("___"+trans_col(symb[0]))
-            row_r += fg_d(trans_col(symb[0])) + "█" + rst
+            row_r += add_escapes(trans_col(symb[0]), 1) + "█" + rst
+        elif symb[1]==0 and symb[0]!=0:
+            row_r += add_escapes(trans_col(symb[0]), 1) + "▀" + rst
         else:
-            #print(trans_col(symb[0]))
-            #print(trans_col(symb[1]))
-            row_r += bg_d(trans_col(symb[0])) + fg_d(trans_col(symb[1])) + "▄" + rst
+            row_r += (
+                add_escapes(trans_col(symb[0]), 0) + 
+                add_escapes(trans_col(symb[1]), 1) + "▄" + rst
+                )
     script.write(row_r+"\n")
 
 script.close()
