@@ -40,13 +40,13 @@ class pixel2ANSI:
             while True:
                 if warning == "no":
                     print("#Aborting")
-                    exit()
                     print("********************")
+                    exit()
                 elif warning == "yes":
                     print("#Okay. I warned you.")
                     break
                 else:
-                    warning = input("#Please, chose \"yes\" or \"no\":\n")
+                    warning = input("#Please, choose \"yes\" or \"no\":\n")
         print((
             "#Image object created.\n\t-Size of picture is: " +
             str(self.width) +
@@ -405,7 +405,7 @@ class pixel2ANSI:
                     row_r +=" "
             script.write(row_r+"\n")
         script.close()
-        print("#Writen to file \""+script_name+"\"")
+        print("#Written to file \""+script_name+"\"")
 
 ####################
 
