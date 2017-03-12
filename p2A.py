@@ -31,6 +31,22 @@ class pixel2ANSI:
         self.img_obj = image.load()
         self.width = size[0]
         self.height = size[1]
+        if self.width > 80:
+            warning = input((
+                "#Current image is too big.\n"+
+                "Recomended width of image for output in console is bellow 80px.\n"+
+                "Are you sure you want to continue? (yes/no)\n"
+                ))
+            while True:
+                if warning == "no":
+                    print("#Aborting")
+                    exit()
+                    print("********************")
+                elif warning == "yes":
+                    print("#Okay. I warned you.")
+                    break
+                else:
+                    warning = input("#Please, chose \"yes\" or \"no\":\n")
         print((
             "#Image object created.\n\t-Size of picture is: " +
             str(self.width) +
