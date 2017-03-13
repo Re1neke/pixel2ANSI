@@ -359,7 +359,11 @@ class pixel2ANSI:
                 code = color[1]
                 break
             else:
-                code = colors[2][1]
+                code = None
+        if code == None:
+            print("#Color "+str(rgb)+" not found. Abort.")
+            print("********************")
+            exit()
                 
         return str(code)
 
