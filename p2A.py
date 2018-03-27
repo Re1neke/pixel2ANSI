@@ -1,18 +1,28 @@
-#!/usr/bin/env python3
+#!/usr/bin/env
+"""pixel to ANSI - is for convert your picture to ANSI characters.
+
+Tiny script that translates image into chain of ANSI escape sequenses and char
+blocks. In result you will receive text file that will form pretty enough
+picture in your terminal.
+
+Copyright (c) 2018, Max Reineke
+"""
 
 from sys import argv
 from PIL import Image
+from os.path import basename, splitext
 
-image = Image.open(argv[1])
-rgba_image = image.convert('RGBA')
 
-pixel_list = [[rgba_image.getpixel((x, y))
-               for x
-               in range(rgba_image.width)]
-              for y
-              in range(rgba_image.height)]
-
-row = ""
+def get_image_info(image_path):
+    image = Image.open(image_path)
+    rgba_image = image.convert('RGBA')
+    pixel_list = [[rgba_image.getpixel((x, y))
+                   for x
+                   in range(rgba_image.width)]
+                  for y
+                  in range(rgba_image.height)]
+    image.close()
+    return pixel_list
 
 
 def get_esc_seq(filler, fg_color, bg_color=None):
@@ -24,22 +34,43 @@ def get_esc_seq(filler, fg_color, bg_color=None):
     return esq_seq
 
 
-for row_num, pixel_row in enumerate(pixel_list):
-    if row_num % 2:
-        continue
-    for pixel_num, pixel in enumerate(pixel_row):
-        if pixel == pixel_list[row_num + 1][pixel_num]:
-            if pixel[3] == 0:
-                row += " "
-            else:
-                row += get_esc_seq('█', pixel[:3])
-        elif pixel[3] != 0 and pixel_list[row_num + 1][pixel_num][3] != 0:
-            row += get_esc_seq('▄', pixel_list[row_num + 1][pixel_num][:3], pixel[:3])
+def select_block_colors(top_pixel, bot_pixel):
+    if top_pixel == bot_pixel and top_pixel[3] != 0:
+        return get_esc_seq('█', top_pixel[:3])
+    elif top_pixel[3] == 0 and bot_pixel[3] == 0:
+        return " "
+    elif top_pixel[3] != 0 and bot_pixel[3] != 0:
+        return get_esc_seq('▄', bot_pixel[:3], top_pixel[:3])
+    else:
+        if top_pixel[3] == 0:
+            return get_esc_seq('▄', bot_pixel[:3])
         else:
-            if pixel[3] == 0:
-                row += get_esc_seq('▄', pixel_list[row_num + 1][pixel_num][:3])
-            else:
-                row += get_esc_seq('▀', pixel[:3])
-    row += '\n'
+            return get_esc_seq('▀', top_pixel[:3])
 
-print(row)
+
+def pixel_list_to_str(pixel_list):
+    row = ""
+    for row_num, pixel_row in enumerate(pixel_list):
+        if row_num % 2:
+            continue
+        for pixel_num, pixel in enumerate(pixel_row):
+            row += select_block_colors(
+                                       pixel,
+                                       pixel_list[row_num + 1][pixel_num]
+                                      )
+        row += '\n'
+    return row
+
+
+if len(argv) <= 1 or len(argv) > 3:
+    print("Usage: %s image_name [result_file_name]" % argv[0])
+    exit(1)
+
+result = pixel_list_to_str(get_image_info(argv[1]))
+if len(argv) == 3:
+    res_file_name = argv[2]
+else:
+    splitext(basename(argv[1]))[0] + "_result"
+res_file = open(res_file_name, 'w')
+res_file.write(result)
+res_file.close()
