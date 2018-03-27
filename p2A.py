@@ -1,8 +1,8 @@
 #!/usr/bin/env
 """pixel to ANSI - is for convert your picture to ANSI characters.
 
-Tiny script that translates image into chain of ANSI escape sequenses and char
-blocks. In result you will receive text file that will form pretty enough
+The tiny script that translates image into chain of ANSI escape sequences and
+char blocks. In the result you will get text file that will form enough pretty
 picture in your terminal.
 
 Copyright (c) 2018, Max Reineke
