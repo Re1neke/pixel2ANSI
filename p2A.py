@@ -21,6 +21,8 @@ def get_image_info(image_path):
                    in range(rgba_image.width)]
                   for y
                   in range(rgba_image.height)]
+    if rgba_image.height % 2:
+        pixel_list.append([(0, 0, 0, 0) for i in range(rgba_image.height)])
     image.close()
     return pixel_list
 
@@ -70,7 +72,7 @@ result = pixel_list_to_str(get_image_info(argv[1]))
 if len(argv) == 3:
     res_file_name = argv[2]
 else:
-    splitext(basename(argv[1]))[0] + "_result"
+    res_file_name = splitext(basename(argv[1]))[0] + "_result"
 res_file = open(res_file_name, 'w')
 res_file.write(result)
 res_file.close()
