@@ -1,4 +1,4 @@
-#!/usr/bin/env
+#!/usr/bin/env python3
 """pixel to ANSI - is for convert your picture to ANSI characters.
 
 The tiny script that translates image into chain of ANSI escape sequences and
